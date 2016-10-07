@@ -5,10 +5,31 @@
  */
 public class SudokuSolver {
 	private static int DIMENSION = 9;
+	private Domain[] cellDomains = new Domain[81];
 
-	// Information about possible numbers that can be assigned to a variable
+	/**
+	 * Information about possible numbers that can be assigned to a variable
+ 	 */
 	private class Domain {
-		boolean[] flags = new boolean[9];
+		boolean[] flags; // All values are default as true/available for assignment
+
+		Domain() {
+			flags = new boolean[9];
+
+			for (boolean flag : flags) {
+				flag = true;
+			}
+		}
+	}
+
+	/**
+	 * Get the corresponding index for the cell domains given the row and column of the cell.
+	 * @param row cell row
+	 * @param column cell column
+     * @return domain index
+     */
+	private int getDomainIndex(int row, int column) {
+		return (row * DIMENSION) + (column);
 	}
 
 	/**
@@ -27,6 +48,8 @@ public class SudokuSolver {
 	 * @return the solved Sudoku board
 	 */
 	public int[][] solve(int[][] board) {
+
+
 
 		return board;
 	}
