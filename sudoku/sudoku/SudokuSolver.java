@@ -23,8 +23,8 @@ public class SudokuSolver {
 		Domain() {
 			flags = new boolean[9];
 
-			for (boolean flag : flags) {
-				flag = true;
+			for (int i = 0; i < DIMENSION; i++) {
+				flags[i] = true;
 				size = 9;
 			}
 		}
