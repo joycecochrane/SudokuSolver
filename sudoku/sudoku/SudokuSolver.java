@@ -15,19 +15,22 @@ public class SudokuSolver {
 
 	/**
 	 * Information about possible numbers that can be assigned to a variable
+	 * flag->false = available
+	 * flag->true = unavailable
  	 */
 	private class Domain {
 		boolean[] flags; // All values are default as true/available for assignment
 		int size;
 
 		Domain() {
-			flags = new boolean[9];
-
-			for (int i = 0; i < DIMENSION; i++) {
-				flags[i] = true;
-				size = 9;
-			}
+			flags = new boolean[DIMENSION];		// default values are false
+//
+//			for (int i = 0; i < DIMENSION; i++) {
+//				flags[i] = true;
+//				size = DIMENSION;
+//			}
 		}
+
 
 		/**
 		 * Update the domain value flags
@@ -37,7 +40,7 @@ public class SudokuSolver {
 		public void updateFlags(Set<Integer> unavailable) {
 			for (int i = 0; i < DIMENSION; i++) {
 				if (unavailable.contains(i)) {
-					flags[i] = false;
+					flags[i] = true;
 					size--;
 				}
 			}
