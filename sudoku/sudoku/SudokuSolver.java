@@ -4,6 +4,12 @@
  * Place for your code.
  */
 public class SudokuSolver {
+	private static int DIMENSION = 9;
+
+	// Information about possible numbers that can be assigned to a variable
+	private class Domain {
+		boolean[] flags = new boolean[9];
+	}
 
 	/**
 	 * @return names of the authors and their student IDs (1 per line).
@@ -24,4 +30,6 @@ public class SudokuSolver {
 
 		return board;
 	}
+
+	private
 }
