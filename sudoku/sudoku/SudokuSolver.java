@@ -1,10 +1,14 @@
 //package sudoku;
 
+import com.sun.xml.internal.bind.v2.TODO;
+
 /**
  * Place for your code.
  */
 public class SudokuSolver {
 	private static int DIMENSION = 9;
+	private static int EMPTY = 0;
+
 	private Domain[] cellDomains = new Domain[81];
 
 	/**
@@ -19,6 +23,16 @@ public class SudokuSolver {
 			for (boolean flag : flags) {
 				flag = true;
 			}
+		}
+	}
+
+	private class Position {
+		int row;
+		int column;
+
+		Position(int row, int column) {
+			this.row = row;
+			this.column = column;
 		}
 	}
 
@@ -48,11 +62,28 @@ public class SudokuSolver {
 	 * @return the solved Sudoku board
 	 */
 	public int[][] solve(int[][] board) {
+		// base case
+		if (findEmptyCell(board) == null) {
+			return board;
+		}
 
+		// Generate all possible moves
+		// Prune illegal moves
+		// for each possible solution (where the cell was filled in)
+		// 		solve(board)
 
 
 		return board;
 	}
 
-	private
+	private Position findEmptyCell(int[][] board) {
+		for (int row = 0; row < DIMENSION - 1; row++) {
+			for (int col = 0; col < DIMENSION - 1; col++) {
+				if (board[row][col] == EMPTY) {
+					return new Position(row, col);
+				}
+			}
+		}
+		return null;
+	}
 }
