@@ -1,12 +1,14 @@
-//package sudoku;
-
-import com.sun.xml.internal.bind.v2.TODO;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Place for your code.
  */
 public class SudokuSolver {
 	private static int DIMENSION = 9;
+	private static int BLOCK_DIMEN = 3;
 	private static int EMPTY = 0;
 
 	private Domain[] cellDomains = new Domain[81];
@@ -16,14 +18,48 @@ public class SudokuSolver {
  	 */
 	private class Domain {
 		boolean[] flags; // All values are default as true/available for assignment
+		int size;
 
 		Domain() {
 			flags = new boolean[9];
 
 			for (boolean flag : flags) {
 				flag = true;
+				size = 9;
 			}
 		}
+
+		/**
+		 * Update the domain value flags
+		 * @param unavailable
+         * @return
+         */
+		public void updateFlags(Set<Integer> unavailable) {
+			for (int i = 0; i < DIMENSION; i++) {
+				if (unavailable.contains(i)) {
+					flags[i] = false;
+					size--;
+				}
+			}
+		}
+
+		/**
+		 * Generate the next possible boards.
+		 * @param board
+		 * @param pos
+         * @return
+         */
+		public List<int[][]> generateNextBoards(int[][] board, Position pos) {
+			List<int[][]> boards = new ArrayList<>(size);
+			for (int i = 0; i < DIMENSION; i++) {
+				if (flags[i]) {
+					board[pos.row][pos.column] = i;
+					boards.add(board);
+				}
+			}
+			return boards;
+		}
+
 	}
 
 	private class Position {
@@ -38,12 +74,11 @@ public class SudokuSolver {
 
 	/**
 	 * Get the corresponding index for the cell domains given the row and column of the cell.
-	 * @param row cell row
-	 * @param column cell column
+	 * @param pos
      * @return domain index
      */
-	private int getDomainIndex(int row, int column) {
-		return (row * DIMENSION) + (column);
+	private int getDomainIndex(Position pos) {
+		return (pos.row * DIMENSION) + (pos.column);
 	}
 
 	/**
@@ -63,19 +98,62 @@ public class SudokuSolver {
 	 */
 	public int[][] solve(int[][] board) {
 		// base case
-		if (findEmptyCell(board) == null) {
+		Position firstEmpty = findEmptyCell(board);
+		if (firstEmpty == null) {
 			return board;
 		}
 
+		// Find the illegal domain values, and prune domain
+		Set<Integer> illegalValues = getUnavailableValues(board, firstEmpty);
+		Domain cellDomain = cellDomains[getDomainIndex(firstEmpty)];
+		cellDomain.updateFlags(illegalValues);
+
 		// Generate all possible moves
-		// Prune illegal moves
-		// for each possible solution (where the cell was filled in)
-		// 		solve(board)
+		List<int[][]> nextBoards = cellDomain.generateNextBoards(board, firstEmpty);
+		for (int[][] next : nextBoards) {
+			solve(next);
+		}
 
-
-		return board;
+		return null;
 	}
 
+	/**
+	 * Return a set of values to remove from a cell domain.
+	 * @param board
+	 * @param pos
+     * @return
+     */
+	private Set<Integer> getUnavailableValues(int[][] board, Position pos) {
+		Set<Integer> unavailable = new HashSet<>(9);
+		for (int i = 0; i < DIMENSION; i++) {
+			if (board[i][pos.column] != EMPTY) {
+				unavailable.add(board[i][pos.column]);
+			}
+			if (board[pos.row][i] != EMPTY) {
+				unavailable.add(board[pos.row][i]);
+			}
+		}
+
+		// Check block
+		int col_start = (int) Math.floor(pos.column / 3) * 3;
+		int row_start = (int) Math.floor(pos.row / 3) * 3;
+
+		for (int i = row_start; i < row_start + BLOCK_DIMEN; i++) {
+			for (int j = col_start; i < col_start + BLOCK_DIMEN; j++) {
+				if (board[i][j] != EMPTY) {
+					unavailable.add(board[i][j]);
+				}
+			}
+		}
+		return unavailable;
+	}
+
+
+	/**
+	 * Return the first empty cell if it exists.
+	 * @param board
+	 * @return
+     */
 	private Position findEmptyCell(int[][] board) {
 		for (int row = 0; row < DIMENSION - 1; row++) {
 			for (int col = 0; col < DIMENSION - 1; col++) {
