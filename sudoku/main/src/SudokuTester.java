@@ -54,7 +54,7 @@ public class SudokuTester {
 		 * not going to test your AC algorithms on this instance :-). Source: http://en.wikipedia.org/wiki/Algorithmics_of_sudoku
 		 */
 		// test(acSolver, "nearWorstCase", true, false); // Time: 1275s (bonus 1275s)
-		
+
 		/** Invalid Sudokus - bonus question */
 		// This Sudoku is invalid because it has no solutions - exception should be thrown.
 		test(acSolver, "noSolutions", false, false); // Time: bonus 0s
@@ -87,6 +87,7 @@ public class SudokuTester {
 				System.out.println("ERROR: board '" + boardName + "' is not a valid Sudoku. Exception should have been thrown.");
 		} catch (Exception e) {
 			System.out.println("Board '" + boardName + "': crashed " + e);
+			e.printStackTrace();
 		}
 		System.out.println("Time: " + (System.currentTimeMillis() - time) / 1000 + " seconds\n");
 	}
