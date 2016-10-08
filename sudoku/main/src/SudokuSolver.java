@@ -23,11 +23,6 @@ public class SudokuSolver {
 
 		Domain() {
 			flags = new boolean[DIMENSION];		// default values are false
-//
-//			for (int i = 0; i < DIMENSION; i++) {
-//				flags[i] = true;
-//				size = DIMENSION;
-//			}
 		}
 
 
@@ -54,13 +49,24 @@ public class SudokuSolver {
 			List<int[][]> boards = new ArrayList<>();
 			for (int i = 0; i < DIMENSION; i++) {
 				if (!flags[i]) {
-					board[pos.row][pos.column] = i + 1;
-					boards.add(board);
+					int[][] b = duplicateBoard(board);
+					b[pos.row][pos.column] = i + 1;
+					boards.add(b);
 				}
 			}
 			return boards;
 		}
 
+	}
+	private int[][] duplicateBoard(int[][] board) {
+		int[][] new_board = new int[DIMENSION][DIMENSION];
+		for (int i = 0; i < DIMENSION; i++) {
+			for (int j = 0; j < DIMENSION; j++) {
+				new_board[i][j] = board[i][j];
+			}
+		}
+
+		return new_board;
 	}
 
 	private class Position {
@@ -97,41 +103,49 @@ public class SudokuSolver {
 	 * @param board the 2d int array representing the Sudoku board. Zeros indicate unfilled cells.
 	 * @return the solved Sudoku board
 	 */
+	int[][] solution;
 	public int[][] solve(int[][] board) {
-		if (board != null)
-			System.out.println("\n" + SudokuUtil.formatBoard(board));
+		solveHelper(board);
+		return solution;
+	}
+
+	public void solveHelper(int[][] board) {
+//		if (board != null)
+//			System.out.println("\n" + SudokuUtil.formatBoard(board));
 
 		// base case
 		Position firstEmpty = findEmptyCell(board);
 		if (firstEmpty == null) {
-			return board;
+			solution = board;
+			return;
 		}
 
-		// Find the illegal domain values, and prune domain
+		// Find the illegal domain values
 		Set<Integer> illegalValues = getUnavailableValues(board, firstEmpty);
 
 		// Wrong Solution, no moves left
 		if (illegalValues.size() == DIMENSION) {
-			return board;
+//			System.out.println("No legal moves. Thus solution failed.");
+			return;
 		}
+//		System.out.println("Legal assignments: ");
+//		for (int i = 1; i < 10; i++) {
+//			if (!illegalValues.contains(i)) {
+//				System.out.print(i);
+//			}
+//		}
+//		System.out.println();
 
+		 // Prune domain values
 		Domain d = cellDomains[getDomainIndex(firstEmpty)];
 		Domain cellDomain = (d == null) ? new Domain() : d;
 		cellDomain.updateFlags(illegalValues);
-		System.out.println("Legal assignments: ");
-		for (int i = 1; i < 10; i++) {
-			if (!illegalValues.contains(i)) {
-				System.out.print(i);
-			}
-		}
 
 		// Generate all possible moves
 		List<int[][]> nextBoards = cellDomain.generateNextBoards(board, firstEmpty);
 		for (int[][] next : nextBoards) {
 			solve(next);
 		}
-
-		return board;
 	}
 
 	/**
