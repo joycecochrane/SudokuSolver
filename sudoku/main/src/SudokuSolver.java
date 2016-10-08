@@ -110,9 +110,6 @@ public class SudokuSolver {
 	}
 
 	public void solveHelper(int[][] board) {
-//		if (board != null)
-//			System.out.println("\n" + SudokuUtil.formatBoard(board));
-
 		// base case
 		Position firstEmpty = findEmptyCell(board);
 		if (firstEmpty == null) {
@@ -125,16 +122,8 @@ public class SudokuSolver {
 
 		// Wrong Solution, no moves left
 		if (illegalValues.size() == DIMENSION) {
-//			System.out.println("No legal moves. Thus solution failed.");
 			return;
 		}
-//		System.out.println("Legal assignments: ");
-//		for (int i = 1; i < 10; i++) {
-//			if (!illegalValues.contains(i)) {
-//				System.out.print(i);
-//			}
-//		}
-//		System.out.println();
 
 		 // Prune domain values
 		Domain d = cellDomains[getDomainIndex(firstEmpty)];
