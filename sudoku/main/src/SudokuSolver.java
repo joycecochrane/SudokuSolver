@@ -20,7 +20,6 @@ public class SudokuSolver {
  	 */
 	private class Domain {
 		boolean[] flags; // All values are default as true/available for assignment
-		int size;
 
 		Domain() {
 			flags = new boolean[DIMENSION];		// default values are false
@@ -38,10 +37,9 @@ public class SudokuSolver {
          * @return
          */
 		public void updateFlags(Set<Integer> unavailable) {
-			for (int i = 0; i < DIMENSION; i++) {
+			for (int i = 1; i < DIMENSION + 1; i++) {
 				if (unavailable.contains(i)) {
-					flags[i] = true;
-					size--;
+					flags[i - 1] = true;
 				}
 			}
 		}
@@ -53,10 +51,10 @@ public class SudokuSolver {
          * @return
          */
 		public List<int[][]> generateNextBoards(int[][] board, Position pos) {
-			List<int[][]> boards = new ArrayList<>(size);
+			List<int[][]> boards = new ArrayList<>();
 			for (int i = 0; i < DIMENSION; i++) {
-				if (flags[i]) {
-					board[pos.row][pos.column] = i;
+				if (!flags[i]) {
+					board[pos.row][pos.column] = i + 1;
 					boards.add(board);
 				}
 			}
@@ -100,6 +98,9 @@ public class SudokuSolver {
 	 * @return the solved Sudoku board
 	 */
 	public int[][] solve(int[][] board) {
+		if (board != null)
+			System.out.println("\n" + SudokuUtil.formatBoard(board));
+
 		// base case
 		Position firstEmpty = findEmptyCell(board);
 		if (firstEmpty == null) {
@@ -108,8 +109,21 @@ public class SudokuSolver {
 
 		// Find the illegal domain values, and prune domain
 		Set<Integer> illegalValues = getUnavailableValues(board, firstEmpty);
-		Domain cellDomain = cellDomains[getDomainIndex(firstEmpty)];
+
+		// Wrong Solution, no moves left
+		if (illegalValues.size() == DIMENSION) {
+			return board;
+		}
+
+		Domain d = cellDomains[getDomainIndex(firstEmpty)];
+		Domain cellDomain = (d == null) ? new Domain() : d;
 		cellDomain.updateFlags(illegalValues);
+		System.out.println("Legal assignments: ");
+		for (int i = 1; i < 10; i++) {
+			if (!illegalValues.contains(i)) {
+				System.out.print(i);
+			}
+		}
 
 		// Generate all possible moves
 		List<int[][]> nextBoards = cellDomain.generateNextBoards(board, firstEmpty);
@@ -117,7 +131,7 @@ public class SudokuSolver {
 			solve(next);
 		}
 
-		return null;
+		return board;
 	}
 
 	/**
@@ -138,11 +152,11 @@ public class SudokuSolver {
 		}
 
 		// Check block
-		int col_start = (int) Math.floor(pos.column / 3) * 3;
-		int row_start = (int) Math.floor(pos.row / 3) * 3;
+		int col_start = (int) Math.floor(pos.column / 3) * BLOCK_DIMEN;
+		int row_start = (int) Math.floor(pos.row / 3) * BLOCK_DIMEN;
 
 		for (int i = row_start; i < row_start + BLOCK_DIMEN; i++) {
-			for (int j = col_start; i < col_start + BLOCK_DIMEN; j++) {
+			for (int j = col_start; j < col_start + BLOCK_DIMEN; j++) {
 				if (board[i][j] != EMPTY) {
 					unavailable.add(board[i][j]);
 				}
@@ -158,8 +172,8 @@ public class SudokuSolver {
 	 * @return
      */
 	private Position findEmptyCell(int[][] board) {
-		for (int row = 0; row < DIMENSION - 1; row++) {
-			for (int col = 0; col < DIMENSION - 1; col++) {
+		for (int row = 0; row < DIMENSION ; row++) {
+			for (int col = 0; col < DIMENSION; col++) {
 				if (board[row][col] == EMPTY) {
 					return new Position(row, col);
 				}
